@@ -1,0 +1,63 @@
+---
+title: "Project"
+output: word_document
+---
+
+## Download References
+```{bash, eval = FALSE}
+#Z. pseudorouxii
+wget -nc -P data/Z_pseudorouxii https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/026/365/GCF_000026365.1_ASM2636v1/GCF_000026365.1_ASM2636v1_genomic.fna.gz
+
+wget -nc -P data/Z_pseudorouxii https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/026/365/GCF_000026365.1_ASM2636v1/GCF_000026365.1_ASM2636v1_protein.faa.gz
+
+wget -nc -P data/Z_pseudorouxii https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/026/365/GCF_000026365.1_ASM2636v1/GCF_000026365.1_ASM2636v1_rna.fna.gz
+
+
+#T. delbrueckii
+wget -nc -P data/T_delbrueckii https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/243/375/GCF_000243375.1_ASM24337v1/GCF_000243375.1_ASM24337v1_genomic.fna.gz
+
+wget -nc -P data/T_delbrueckii https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/243/375/GCF_000243375.1_ASM24337v1/GCF_000243375.1_ASM24337v1_protein.faa.gz
+
+wget -nc -P data/T_delbrueckii https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/243/375/GCF_000243375.1_ASM24337v1/GCF_000243375.1_ASM24337v1_rna.fna.gz
+
+
+#L. thermotolerans
+wget -nc -P data/L_thermotolerans https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/142/805/GCF_000142805.1_ASM14280v1/GCF_000142805.1_ASM14280v1_genomic.fna.gz
+
+wget -nc -P data/L_thermotolerans https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/142/805/GCF_000142805.1_ASM14280v1/GCF_000142805.1_ASM14280v1_protein.faa.gz
+
+wget -nc -P data/L_thermotolerans https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/142/805/GCF_000142805.1_ASM14280v1/GCF_000142805.1_ASM14280v1_rna.fna.gz
+```
+
+## QC on Reads
+```{bash, eval=FALSE}
+conda activate sequali-env
+sequali --outdir outputs/Z_pseudorouxii/sequali data/Z_pseudorouxii/...
+
+sequali --outdir outputs/L_thermotolerans/sequali data/L_thermotolerans/...
+
+sequali --outdir outputs/T_delbrueckii/sequali data/T_delbrueckii/...
+conda deactivate
+```
+
+```{r, include=FALSE}
+reads_path 
+```
+
+
+Some filtering maybe
+
+
+## Assembly
+```{bash, eval=FALSE}
+conda activate flye-env
+flye --nano-raw data/Z_pseudorouxii/... --out-dir outputs/Z_pseudorouxii/flye --threads 8 --genome-size 10m
+
+flye --nano-raw data/L_thermotolerans/... --out-dir outputs/L_thermotolerans/flye --threads 8 --genome-size 10m
+
+flye --nano-raw data/T_delbrueckii/... --out-dir outputs/T_delbrueckii/flye --threads 8 --genome-size 9m
+conda deactivate
+```
+
+
+
