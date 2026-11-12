@@ -8,6 +8,8 @@ output: word_document
 #Z. pseudorouxii
 wget -nc -P data/Z_pseudo https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/026/365/GCF_000026365.1_ASM2636v1/GCF_000026365.1_ASM2636v1_genomic.fna.gz
 
+wget -nc -P data/Z_pseudo https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/026/365/GCF_000026365.1_ASM2636v1/GCF_000026365.1_ASM2636v1_genomic.gff.gz
+
 wget -nc -P data/Z_pseudo https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/026/365/GCF_000026365.1_ASM2636v1/GCF_000026365.1_ASM2636v1_protein.faa.gz
 
 wget -nc -P data/Z_pseudo https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/026/365/GCF_000026365.1_ASM2636v1/GCF_000026365.1_ASM2636v1_rna.fna.gz
@@ -16,6 +18,8 @@ wget -nc -P data/Z_pseudo https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/026/3
 #T. delbrueckii
 wget -nc -P data/T_del https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/243/375/GCF_000243375.1_ASM24337v1/GCF_000243375.1_ASM24337v1_genomic.fna.gz
 
+wget -nc -P data/T_del https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/243/375/GCF_000243375.1_ASM24337v1/GCF_000243375.1_ASM24337v1_genomic.gff.gz
+
 wget -nc -P data/T_del https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/243/375/GCF_000243375.1_ASM24337v1/GCF_000243375.1_ASM24337v1_protein.faa.gz
 
 wget -nc -P data/T_del https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/243/375/GCF_000243375.1_ASM24337v1/GCF_000243375.1_ASM24337v1_rna.fna.gz
@@ -23,6 +27,8 @@ wget -nc -P data/T_del https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/243/375/
 
 #L. thermotolerans
 wget -nc -P data/L_thermo https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/142/805/GCF_000142805.1_ASM14280v1/GCF_000142805.1_ASM14280v1_genomic.fna.gz
+
+wget -nc -P data/L_thermo https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/142/805/GCF_000142805.1_ASM14280v1/GCF_000142805.1_ASM14280v1_genomic.gff.gz
 
 wget -nc -P data/L_thermo https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/142/805/GCF_000142805.1_ASM14280v1/GCF_000142805.1_ASM14280v1_protein.faa.gz
 
@@ -34,18 +40,33 @@ wget -nc -P data/L_thermo https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/142/8
 conda activate sequali-env
 sequali --outdir outputs/Z_pseudo/sequali data/Z_pseudo/zygosaccharomycesPseudorouxii.fastq
 
+sequali --outdir outputs/Z_pseudo/sequali data/Z_pseudo/zygosaccharomycesPseudorouxii2026.fastq
+
 sequali --outdir outputs/L_thermo/sequali data/L_thermo/lachanceaThermotolerans.fastq
 
+sequali --outdir outputs/L_thermo/sequali data/L_thermo/lachanceaThermotolerans2026.fastq
+
 sequali --outdir outputs/T_del/sequali data/T_del/torulasporaDelbrueckii.fastq
+
+sequali --outdir outputs/T_del/sequali data/T_del/torulasporaDelbrueckii2026.fastq
+```
+
+## Put them together
+```{bash, eval=FALSE}
+cat data/Z_pseudo/zygosaccharomycesPseudorouxii2026.fastq data/Z_pseudo/zygosaccharomycesPseudorouxii.fastq > data/Z_pseudo/Z_pseudo.fastq
+
+cat data/L_thermo/lachanceaThermotolerans2026.fastq data/L_thermo/lachanceaThermotolerans.fastq > data/L_thermo/L_thermo.fastq
+
+cat data/T_del/torulasporaDelbrueckii2026.fastq data/T_del/torulasporaDelbrueckii.fastq > data/T_del/T_del.fastq
 ```
 
 ## Filtering
 ```{bash, eval=FALSE}
-filtlong data/Z_pseudo/zygosaccharomycesPseudorouxii.fastq --min_length 500 --min_mean_q 90 > outputs/Z_pseudo/Z_pseudo_filt.fastq
+filtlong data/Z_pseudo/Z_pseudo.fastq --keep_percent 80 --min_mean_q 90 > outputs/Z_pseudo/Z_pseudo_filt.fastq
 
-filtlong data/L_thermo/lachanceaThermotolerans.fastq --min_length 500 --min_mean_q 90 > outputs/L_thermo/L_thermo_filt.fastq
+filtlong data/L_thermo/L_thermo.fastq --keep_percent 80 --min_mean_q 90 > outputs/L_thermo/L_thermo_filt.fastq
 
-filtlong data/T_del/torulasporaDelbrueckii.fastq --min_length 500 --min_mean_q 90 > outputs/T_del/T_del_filt.fastq
+filtlong data/T_del/T_del.fastq --keep_percent 80 --min_length 100 --min_mean_q 90 > outputs/T_del/T_del_filt.fastq
 ```
 
 ## QC Post-Filtering
@@ -102,5 +123,145 @@ print("T. delbrueckii Assembly Stats")
 print(T_df)
 ```
 
+Dropping T. delbrueckii because it's so bad
+
+
+## Polishing
+```{bash, eval=FALSE}
+conda activate medaka_final
+medaka_consensus -i outputs/Z_pseudo/Z_pseudo_filt.fastq -d outputs/Z_pseudo/flye/assembly.fasta -o outputs/Z_pseudo/medaka -t 8
+
+medaka_consensus -i outputs/L_thermo/L_thermo_filt.fastq -d outputs/L_thermo/flye/assembly.fasta -o outputs/L_thermo/medaka -t 8
+
+medaka_consensus -i outputs/T_del/T_del_filt.fastq -d outputs/T_del/flye/assembly.fasta -o outputs/T_del/medaka -t 8
+```
+
+```{bash, eval=FALSE}
+gunzip data/Z_pseudo/GCF_000026365.1_ASM2636v1_genomic.fna.gz
+mv data/Z_pseudo/GCF_000026365.1_ASM2636v1_genomic.fna data/Z_pseudo/reference.fna
+
+gunzip data/Z_pseudo/GCF_000026365.1_ASM2636v1_genomic.gff.gz
+mv data/Z_pseudo/GCF_000026365.1_ASM2636v1_genomic.gff data/Z_pseudo/annotation.gff
+
+
+gunzip data/L_thermo/GCF_000142805.1_ASM14280v1_genomic.fna.gz
+mv data/L_thermo/GCF_000142805.1_ASM14280v1_genomic.fna data/L_thermo/reference.fna
+
+gunzip data/L_thermo/GCF_000142805.1_ASM14280v1_genomic.gff.gz
+mv data/L_thermo/GCF_000142805.1_ASM14280v1_genomic.gff data/L_thermo/annotation.gff
+```
+
+## QUAST
+```{bash, eval=FALSE}
+docker run --rm -v "$(pwd)":/data -w /data quay.io/biocontainers/quast:5.3.0--py313pl5321h5ca1c30_2 \
+  quast.py outputs/Z_pseudo/medaka/consensus.fasta \
+  -r data/Z_pseudo/reference.fna \
+  -g data/Z_pseudo/annotation.gff \
+  -o outputs/Z_pseudo/QUAST
+  
+docker run --rm -v "$(pwd)":/data -w /data quay.io/biocontainers/quast:5.3.0--py313pl5321h5ca1c30_2 \
+  quast.py outputs/L_thermo/medaka/consensus.fasta \
+  -r data/L_thermo/reference.fna \
+  -g data/L_thermo/annotation.gff \
+  -o outputs/L_thermo/QUAST
+  
+```
+
+
+## BUSCO
+```{bash, eval=FALSE}
+docker run --rm \
+  -v "$PWD":/data \
+  -w /data \
+  ezlabgva/busco:v6.0.0_cv1 \
+  busco -i outputs/Z_pseudo/medaka/consensus.fasta -o outputs/Z_pseudo/busco -l saccharomycetaceae_odb12 -m genome -c 8
+  
+  
+docker run --rm \
+  -v "$PWD":/data \
+  -w /data \
+  ezlabgva/busco:v6.0.0_cv1 \
+  busco -i outputs/L_thermo/medaka/consensus.fasta -o outputs/L_thermo/busco -l saccharomycetaceae_odb12 -m genome -c 8
+  
+
+```
+
+
+```{r}
+Z_busco <- readLines("outputs/Z_pseudo/busco/short_summary.specific.saccharomycetaceae_odb12.busco.txt")
+start <- grep("Results:", Z_busco)
+Z <- Z_busco[(start+2):(start+8)]
+Z <- str_replace_all(Z, "\t", " ")
+print("Z. pseudorouxii:")
+print(Z)
+
+cat("\n")
+L_busco <- readLines("outputs/L_thermo/busco/short_summary.specific.saccharomycetaceae_odb12.busco.txt")
+start <- grep("Results:", L_busco)
+L <- L_busco[(start+2):(start+8)]
+L <- str_replace_all(L, "\t", " ")
+print("L. thermotolerans:")
+print(L)
+```
+
+```{bash, include=FALSE, eval=FALSE}
+gunzip data/Z_pseudo/GCF_000026365.1_ASM2636v1_protein.faa.gz
+mv data/Z_pseudo/GCF_000026365.1_ASM2636v1_protein.faa data/Z_pseudo/proteins.faa 
+
+gunzip data/Z_pseudo/GCF_000026365.1_ASM2636v1_rna.fna.gz
+mv data/Z_pseudo/GCF_000026365.1_ASM2636v1_rna.fna data/Z_pseudo/rna.fna
+```
+
+## Annotation
+
+
+```{bash, eval=FALSE}
+IMAGE="nextgenusfs/funannotate:v1.8.15"
+PLATFORM="--platform linux/amd64"
+CPUS=8
+INPUT="outputs/Z_pseudo/medaka/consensus.fasta"
+OUT="outputs/Z_pseudo/funannotate"
+SPECIES="Zygosaccharomyces pseudorouxii"
+STRAIN="MRK2"
+PROTEIN_EVIDENCE="data/Z_pseudo/proteins.faa"
+RNA="data/Z_pseudo/rna.fna"
+
+
+docker run -u $(id -u):$(id -g) --rm -v "$PWD":/data -w /data $PLATFORM $IMAGE \
+  funannotate clean \
+  -i $INPUT \
+  -o ${OUT}/assembly_clean.fasta
+  
+  
+docker run -u $(id -u):$(id -g) --rm -v "$PWD":/data -w /data $PLATFORM $IMAGE \
+  funannotate sort \
+  -i ${OUT}/assembly_clean.fasta \
+  -o ${OUT}/assembly_sorted.fasta
+  
+  
+docker run -u $(id -u):$(id -g) --rm -v "$PWD":/data -w /data $PLATFORM $IMAGE \
+  funannotate mask \
+  -i ${OUT}/assembly_sorted.fasta \
+  -o ${OUT}/assembly_masked.fasta \
+  --cpus $CPUS
+  
+  
+docker run -u $(id -u):$(id -g) --rm -v "$PWD":/data -w /data $PLATFORM $IMAGE   funannotate setup -b saccharomycetes
+
+  
+docker run -u $(id -u):$(id -g) --rm -v "$PWD":/data -w /data $PLATFORM $IMAGE \
+  funannotate predict \
+  -i ${OUT}/assembly_masked.fasta \
+  -o $OUT \
+  -s "$SPECIES" \
+  --strain "$STRAIN" \
+  --busco_db dikarya \
+  --protein_evidence "$PROTEIN_EVIDENCE" \
+  --transcript_evidence "$RNA" \
+  --cpus $CPUS
+
+```
+
+(minimap2 v2.24)
 
 
