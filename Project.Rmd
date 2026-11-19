@@ -320,3 +320,98 @@ wget -nc -P data https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/146/045/GCF_00
 gunzip -c data/GCF_000146045.2_R64_protein.faa.gz > data/S_cerevisiae_proteins.faa
 ```
 
+
+## Functional Annotation with eggNOG
+```{bash, eval=FALSE}
+conda activate eggnog_env
+
+EGGNOG_DB_PATH="data/eggnog_db"
+
+emapper.py \
+  -i outputs/Z_pseudo/funannotate/predict_results/*.proteins.fa \
+  --output functional \
+  --output_dir outputs/Z_pseudo/eggnog \
+  --data_dir $EGGNOG_DB_PATH \
+  --decorate_gff yes \
+  --excel \
+  -m diamond \
+  --cpu 8
+  
+  
+emapper.py \
+  -i outputs/L_thermo/funannotate/predict_results/*.proteins.fa \
+  --output functional \
+  --output_dir outputs/L_thermo/eggnog \
+  --data_dir $EGGNOG_DB_PATH \
+  --decorate_gff yes \
+  --excel \
+  -m diamond \
+  --cpu 8
+  
+  
+emapper.py \
+  -i data/S_cerevisiae_proteins.faa \
+  --output functional \
+  --output_dir outputs/S_cerev \
+  --data_dir $EGGNOG_DB_PATH \
+  --decorate_gff yes \
+  --excel \
+  -m diamond \
+  --cpu 8
+  
+```
+
+
+```{r, message=FALSE}
+library(tidyverse)
+library(GO.db)
+library(AnnotationDbi)
+
+target_GOs <- c("GO:0006970", "GO:0006972", "GO:0071470", "GO:0106049", "GO:0032872", "GO:0000196", "GO:0005991", "GO:0090062")
+
+eggnog_data <- read_tsv("outputs/L_thermo/eggnog/functional.emapper.annotations", comment = "##", show_col_types = FALSE)
+
+go_long <- eggnog_data %>%
+  filter(GOs != "-" & !is.na(GOs)) %>%
+  separate_rows(GOs, sep = ",")
+
+hits <- go_long[go_long$GOs %in% target_GOs, ]
+counts <- table(factor(hits$GOs, levels = target_GOs))
+count_df <- data.frame(GO = names(counts), count = as.integer(counts))
+count_df$GO_name <- Term(count_df$GO)
+print("L. thermotolerans")
+print(count_df)
+
+
+
+eggnog_data <- read_tsv("outputs/Z_pseudo/eggnog/functional.emapper.annotations", comment = "##", show_col_types = FALSE)
+
+go_long <- eggnog_data %>%
+  filter(GOs != "-" & !is.na(GOs)) %>%
+  separate_rows(GOs, sep = ",")
+
+hits <- go_long[go_long$GOs %in% target_GOs, ]
+counts <- table(factor(hits$GOs, levels = target_GOs))
+count_df <- data.frame(GO = names(counts), count = as.integer(counts))
+count_df$GO_name <- Term(count_df$GO)
+cat("\n")
+print("Z. pseudorouxii")
+print(count_df)
+
+
+
+eggnog_data <- read_tsv("outputs/S_cerev/functional.emapper.annotations", comment = "##", show_col_types = FALSE)
+
+go_long <- eggnog_data %>%
+  filter(GOs != "-" & !is.na(GOs)) %>%
+  separate_rows(GOs, sep = ",")
+
+hits <- go_long[go_long$GOs %in% target_GOs, ]
+counts <- table(factor(hits$GOs, levels = target_GOs))
+count_df <- data.frame(GO = names(counts), count = as.integer(counts))
+count_df$GO_name <- Term(count_df$GO)
+cat("\n")
+print("S. cerevisiae")
+print(count_df)
+```
+
