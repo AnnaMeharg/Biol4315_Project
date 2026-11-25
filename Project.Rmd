@@ -369,49 +369,135 @@ library(AnnotationDbi)
 
 target_GOs <- c("GO:0006970", "GO:0006972", "GO:0071470", "GO:0106049", "GO:0032872", "GO:0000196", "GO:0005991", "GO:0090062")
 
-eggnog_data <- read_tsv("outputs/L_thermo/eggnog/functional.emapper.annotations", comment = "##", show_col_types = FALSE)
+L_eggnog <- read_tsv("outputs/L_thermo/eggnog/functional.emapper.annotations", comment = "##", show_col_types = FALSE)
 
-go_long <- eggnog_data %>%
+go_long <- L_eggnog %>%
   filter(GOs != "-" & !is.na(GOs)) %>%
   separate_rows(GOs, sep = ",")
 
 hits <- go_long[go_long$GOs %in% target_GOs, ]
-counts <- table(factor(hits$GOs, levels = target_GOs))
-count_df <- data.frame(GO = names(counts), count = as.integer(counts))
-count_df$GO_name <- Term(count_df$GO)
+L_go_counts <- table(factor(hits$GOs, levels = target_GOs))
+L_go_count_df <- data.frame(GO = names(L_go_counts), count = as.integer(L_go_counts))
+L_go_count_df$GO_name <- Term(L_go_count_df$GO)
 print("L. thermotolerans")
-print(count_df)
+print(L_go_count_df)
+print(paste("Total: ", sum(L_go_count_df$count)))
 
 
 
-eggnog_data <- read_tsv("outputs/Z_pseudo/eggnog/functional.emapper.annotations", comment = "##", show_col_types = FALSE)
+Z_eggnog <- read_tsv("outputs/Z_pseudo/eggnog/functional.emapper.annotations", comment = "##", show_col_types = FALSE)
 
-go_long <- eggnog_data %>%
+go_long <- Z_eggnog %>%
   filter(GOs != "-" & !is.na(GOs)) %>%
   separate_rows(GOs, sep = ",")
 
 hits <- go_long[go_long$GOs %in% target_GOs, ]
-counts <- table(factor(hits$GOs, levels = target_GOs))
-count_df <- data.frame(GO = names(counts), count = as.integer(counts))
-count_df$GO_name <- Term(count_df$GO)
+Z_go_counts <- table(factor(hits$GOs, levels = target_GOs))
+Z_go_count_df <- data.frame(GO = names(Z_go_counts), count = as.integer(Z_go_counts))
+Z_go_count_df$GO_name <- Term(Z_go_count_df$GO)
 cat("\n")
 print("Z. pseudorouxii")
-print(count_df)
+print(Z_go_count_df)
+print(paste("Total: ", sum(Z_go_count_df$count)))
 
 
 
-eggnog_data <- read_tsv("outputs/S_cerev/functional.emapper.annotations", comment = "##", show_col_types = FALSE)
+S_eggnog <- read_tsv("outputs/S_cerev/functional.emapper.annotations", comment = "##", show_col_types = FALSE)
 
-go_long <- eggnog_data %>%
+go_long <- S_eggnog %>%
   filter(GOs != "-" & !is.na(GOs)) %>%
   separate_rows(GOs, sep = ",")
 
 hits <- go_long[go_long$GOs %in% target_GOs, ]
-counts <- table(factor(hits$GOs, levels = target_GOs))
-count_df <- data.frame(GO = names(counts), count = as.integer(counts))
-count_df$GO_name <- Term(count_df$GO)
+S_go_counts <- table(factor(hits$GOs, levels = target_GOs))
+S_go_count_df <- data.frame(GO = names(S_go_counts), count = as.integer(S_go_counts))
+S_go_count_df$GO_name <- Term(S_go_count_df$GO)
 cat("\n")
 print("S. cerevisiae")
-print(count_df)
+print(S_go_count_df)
+print(paste("Total: ", sum(S_go_count_df$count)))
 ```
+
+
+```{r}
+library(KEGGREST)
+
+
+
+target_keggs <- c("ko:K11231", "ko:K11232", "ko:K11233", "ko:K11230", "ko:K11246", "ko:K19849", "ko:K19848", "ko:K19850", "ko:K04393", "ko:K04409", "ko:K19833", "ko:K19841", "ko:K11228", "ko:K11227", "ko:K04441", "ko:K19806", "ko:K19704", "ko:K19815", "ko:K19807", "ko:K09468", "ko:K09051", "ko:K00006", "ko:K03781", "ko:K17741")
+
+ko_lib <- keggList(target_keggs)
+ko_lib <- sub("\\s*\\[EC:[^]]*\\]", "", ko_lib)
+
+
+kegg_long <- L_eggnog %>%
+  filter(KEGG_ko != "-" & !is.na(KEGG_ko)) %>%
+  separate_rows(KEGG_ko, sep = ",")
+
+hits <- kegg_long[kegg_long$KEGG_ko %in% target_keggs, ]
+L_ko_counts <- table(factor(hits$KEGG_ko, levels = target_keggs))
+L_ko_count_df <- data.frame(KEGG = names(L_ko_counts), count = as.integer(L_ko_counts))
+ko_ids <- sub("^ko:", "", L_ko_count_df$KEGG)
+L_ko_count_df$KO_name <- unname(ko_lib[ko_ids])
+print("L. thermotolerans")
+print(L_ko_count_df)
+print(paste("Total: ", sum(L_ko_count_df$count)))
+
+
+kegg_long <- Z_eggnog %>%
+  filter(KEGG_ko != "-" & !is.na(KEGG_ko)) %>%
+  separate_rows(KEGG_ko, sep = ",")
+
+hits <- kegg_long[kegg_long$KEGG_ko %in% target_keggs, ]
+Z_ko_counts <- table(factor(hits$KEGG_ko, levels = target_keggs))
+Z_ko_count_df <- data.frame(KEGG = names(Z_ko_counts), count = as.integer(Z_ko_counts))
+ko_ids <- sub("^ko:", "", Z_ko_count_df$KEGG)
+Z_ko_count_df$KO_name <- unname(ko_lib[ko_ids])
+cat("\n")
+print("Z. pseudorouxii")
+print(Z_ko_count_df)
+print(paste("Total: ", sum(Z_ko_count_df$count)))
+
+
+kegg_long <- S_eggnog %>%
+  filter(KEGG_ko != "-" & !is.na(KEGG_ko)) %>%
+  separate_rows(KEGG_ko, sep = ",")
+
+hits <- kegg_long[kegg_long$KEGG_ko %in% target_keggs, ]
+S_ko_counts <- table(factor(hits$KEGG_ko, levels = target_keggs))
+S_ko_count_df <- data.frame(KEGG = names(S_ko_counts), count = as.integer(S_ko_counts))
+ko_ids <- sub("^ko:", "", S_ko_count_df$KEGG)
+S_ko_count_df$KO_name <- unname(ko_lib[ko_ids])
+cat("\n")
+print("S. cerevisiae")
+print(S_ko_count_df)
+print(paste("Total: ", sum(S_ko_count_df$count)))
+```
+
+
+
+## Plots
+```{r}
+GO_totals <- data.frame(Species = c("Z. pseudorouxii", "L. thermotolerans", "S. cerevisiae"),
+                   gene_counts = c(194, 210, 308))
+library(ggplot2)
+
+library(forcats)
+
+plot <- ggplot(data, aes(x = fct_inorder(Species), y = gene_counts, fill = fct_inorder(Species))) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_manual(values = c("Z. pseudorouxii" = "orange", "L. thermotolerans" = "purple", "S. cerevisiae" = "green3")) +
+  labs(x = "Species", y = "Gene Count") +
+  theme_classic(base_size = 14) +
+  theme(axis.text.x = element_blank())
+plot
+
+#ggsave("GO_counts.svg", plot = plot,
+#       width = 11, height = 4.7, units = "cm")
+```
+
+
+
+
+
 
